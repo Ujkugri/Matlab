@@ -42,7 +42,7 @@ for nPhi=1:3                %Einschrittverfahren h=0.1
    ylim([0 10])
 end
 
-for nPhi=1:3                %Einschrittverfahren h=0.01
+for nPhi=1:3                %Einschrittverfahren h=1
    for k=1:H
      x(:,k+1) = x(:,k) + (h)*rhs(x(:,k),nPhi);
    end

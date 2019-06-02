@@ -1,5 +1,5 @@
 function konsensoptshort()
-N = 50;
+N = 100;
 konsens = rand(N,1)*10;         %rand gibt Zahl zwischen 0 bis 1 aus 
 M=mean(konsens);
 T = 400;                        %Wie lange läuft mein System
