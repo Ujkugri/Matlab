@@ -13,6 +13,6 @@ Ziel dieses Codes war es, den Unterschied der Schrittweite zu visualisieren.
 Das Ergebnis sieht so aus:
 
 
-![Konsens_v1](C:\Users\Gentian\Dropbox\Uni\Programm\Matlab\Konsens\docs)
+![Konsens_v1](https://github.com/GentianRrafshi/Matlab/tree/master/Konsens/docs)
 
 Wobei die obere Reihe eine Schrittweite von h=0.1 und die untere Reihe eine Schrittweite von h=1.
