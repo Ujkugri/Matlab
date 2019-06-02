@@ -14,7 +14,7 @@ Frage: Ist nun ein Konsens entstanden, d.h. geben alle Zuschauer die gleiche Bew
 
 Wir betrachten folgendes Differentialgleichungssystem:
 
-![](hhttp://latex.codecogs.com/gif.latex?%5Cfrac%7Bd%7D%7Bdt%7D%5Ctextbf%7Bp%7D_i%20%3D%20%5Calpha%20%5Csum%5Climits_%7Bj%5Cneq%20i%7D%20a_%7Bij%7D%28%5Ctextbf%7Bp%7D_j%20-%20%5Ctextbf%7Bp%7D_i%29%20%5Cqquad%20a_%7Bij%7D%5Cgeq%200)
+![](http://latex.codecogs.com/gif.latex?%5Cfrac%7Bd%7D%7Bdt%7D%5Ctextbf%7Bp%7D_i%20%3D%20%5Csum%5Climits_%7Bj%5Cneq%20i%7Da_%7Bij%7D%28%5Ctextbf%7Bp%7D_j%20-%20%5Ctextbf%7Bp%7D_i%29%20%5Cqquad%20a_%7Bij%7D%5Cgeq%200)
 
 Hierbei ist p_i(t) die Meinung der Person i zum Zeitpunkt t, ![](http://latex.codecogs.com/gif.latex?%5Calpha) ein Skalierungsfaktor und ![](http://latex.codecogs.com/gif.latex?a_%7Bij%7D) der Einflussfaktor zwischen Person i und j.
 Nun ist es möglich, dieses Modell durch einsetzen von Einflussfunktion mit Hilfe des Eulervorwärtsverfahren zu lösen.
@@ -27,7 +27,7 @@ Konsens_v1 ist die erste Version.
 Ziel dieses Codes war es, den Unterschied der Schrittweite zu visualisieren.
 Hierfür wurde
 
-![](http://latex.codecogs.com/gif.latex?%5Cfrac%7Bd%7D%7Bdt%7D%5Ctextbf%7Bp%7D_i%20%3D%20%5Csum%5Climits_%7Bj%5Cneq%20i%7Da_%7Bij%7D%28%5Ctextbf%7Bp%7D_j%20-%20%5Ctextbf%7Bp%7D_i%29%20%5Cqquad%20a_%7Bij%7D%5Cgeq%200)
+![](http://latex.codecogs.com/gif.latex?a_%7Bij%7D%20%3D%20%5Cfrac%7B%5CPhi%28%5Cvert%20%5Ctextbf%7Bp%7D_j%20-%20%5Ctextbf%7Bp%7D_i%20%5Cvert%29%29%7D%7BN%7D)
 
 gesetzt, mit ![](http://latex.codecogs.com/gif.latex?%5CPhi%28%20%5Ccdot%20%29) als Einflussfunktion und N als Gesamtzahl der Zuschauer. 
 
