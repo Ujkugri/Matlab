@@ -26,7 +26,9 @@ Dafür wurden drei Programme erstellt:
 Konsens_v1 ist die erste Version.
 Ziel dieses Codes war es, den Unterschied der Schrittweite zu visualisieren.
 Hierfür wurde
+
 ![](http://latex.codecogs.com/gif.latex?a_%7Bij%7D%3D%20%5Cfrac%7B%5CPhi%28%5Cvert%20%5Ctextbf%7Bp%7D_j%20-%20%5Ctextbf%7Bp%7D_i%20%5Cvert%20%29%7D%7BN%7D)
+
 gesetzt, mit ![](http://latex.codecogs.com/gif.latex?%5CPhi%28%5Cvert%20%5Ctextbf%7Bp%7D_j%20-%20%5Ctextbf%7Bp%7D_i%20%5Cvert%20%29) als Einflussfunktion und N als Gesamtzahl der Zuschauer. 
 
 Das Ergebnis sieht so aus:
