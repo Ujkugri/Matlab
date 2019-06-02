@@ -3,17 +3,15 @@
 Matlabimplementierung mit Eulervorwärtsverfahren zum Paper "HETEROPHILIOUS  DYNAMICS  ENHANCES  CONSENSUS" 
 von SEBASTIEN MOTSCH und EITAN TADMOR, welches man [hier](https://arxiv.org/pdf/1301.4123.pdf) lesen kann.
 <br>
-<br>
 **Das zugrunde liegende Problem**
-
+<br>
 Nach einer Filmvorstellung wird von allen Zuschauern eine Bewertung des Films auf einer Skala von 0 bis 10 abgegeben.
 Danach werden die Zuschauer in einen Raum gebeten und sollen sich über diesen Film unterhalten. 
 Nach einiger Zeit werden die Zuschauer wieder um eine Bewertung des Films gebeten.
 Frage: Ist nun ein Konsens entstanden, d.h. geben alle Zuschauer die gleiche Bewertung ab?
 <br>
-<br>
 **Mathematische Grundlage**
-
+<br>
 Wir betrachten folgendes Differentialgleichungssystem:
 
 <p align="center">
@@ -24,9 +22,8 @@ Hierbei ist p_i(t) die Meinung der Person i zum Zeitpunkt t, ![](http://latex.co
 Nun ist es möglich, dieses Modell durch einsetzen von Einflussfunktion mit Hilfe des Eulervorwärtsverfahren zu lösen.
 Dafür wurden drei Programme erstellt:
 <br>
-<br>
 **Implementierung**
-
+<br>
 Konsens_v1 ist die erste Version.
 Ziel dieses Codes war es, den Unterschied der Schrittweite zu visualisieren.
 Hierfür wurde
@@ -36,7 +33,7 @@ Hierfür wurde
 
 gesetzt, mit ![](http://latex.codecogs.com/gif.latex?%5CPhi%28%20%5Ccdot%20%29) als Einflussfunktion und N als Gesamtzahl der Zuschauer. 
 
-Das Ergebnis sieht so aus:
+Das Ergebnis sieht dann wie folgt aus:
 
 ![Konsens_v1](https://github.com/GentianRrafshi/Matlab/blob/master/Konsens/docs/Konsens1_110s.png)
 
