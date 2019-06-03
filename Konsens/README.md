@@ -1,4 +1,4 @@
-**Konsensbestimmung mit Eulervorwärtsverfahren**
+# Konsensbestimmung mit Eulervorwärtsverfahren
 
 Matlabimplementierung mit Eulervorwärtsverfahren zum Paper "HETEROPHILIOUS  DYNAMICS  ENHANCES  CONSENSUS" 
 von SEBASTIEN MOTSCH und EITAN TADMOR, welches man [hier](https://arxiv.org/pdf/1301.4123.pdf) lesen kann.
