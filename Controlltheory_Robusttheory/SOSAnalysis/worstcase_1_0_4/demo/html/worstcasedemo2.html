@@ -1,0 +1,230 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+<html xmlns:mwsh="http://www.mathworks.com/namespace/mcode/v1/syntaxhighlight.dtd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      -->
+      <title>Using the Worstcase Solver - Demo 2</title>
+      <meta name="generator" content="MATLAB 7.6">
+      <meta name="date" content="2009-06-08">
+      <meta name="m-file" content="worstcasedemo2"><style>
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head>
+   <body>
+      <div class="content">
+         <h1>Using the Worstcase Solver - Demo 2</h1>
+         <introduction>
+            <p><html> Timothy J. Wheeler<br> Dept. of Mechanical Engineering<br> University of California, Berkeley </html></p>
+         </introduction>
+         <h2>Contents</h2>
+         <div>
+            <ul>
+               <li><a href="#1">Introduction</a></li>
+               <li><a href="#2">Create a model of the system.</a></li>
+               <li><a href="#5">Optimization parameters.</a></li>
+               <li><a href="#7">Set options for worstcase solver.</a></li>
+               <li><a href="#11">Find worst input.</a></li>
+               <li><a href="#12">Display results.</a></li>
+            </ul>
+         </div>
+         <h2>Introduction<a name="1"></a></h2>
+         <p>Consider a dynamic system of the form</p>
+         <p><img vspace="5" hspace="5" src="worstcasedemo2_eq71370.png"> </p>
+         <p><img vspace="5" hspace="5" src="worstcasedemo2_eq28730.png"> </p>
+         <p>where x(0)=0.  Given positive scalars B and T and a positive definite matrix C, the goal is to maximize</p>
+         <p><img vspace="5" hspace="5" src="worstcasedemo2_eq09719.png"> </p>
+         <p>subject to the constraints</p>
+         <p><img vspace="5" hspace="5" src="worstcasedemo2_eq98426.png"> </p>
+         <p>Of course, since we are only interested in the value of <tt>x</tt> at time <tt>T</tt>, we only need to consider inputs defined on the interval <tt>[0,T]</tt>.
+         </p>
+         <h2>Create a model of the system.<a name="2"></a></h2>
+         <p>First, <tt>polynomial</tt> variables are created using the <tt>pvar</tt> command.  Then, these variables are used to define the functions <tt>f</tt> and <tt>g</tt>, which are also <tt>polynomial</tt> variables.
+         </p><pre class="codeinput">pvar <span class="string">x1</span> <span class="string">x2</span> <span class="string">u</span>
+states = [x1;x2];
+inputs = u;
+f = [ -x1 + x2 - x1*x2^2 ; -x2*x1^2 - x2 + u ];
+g = states;
+</pre><p>Then, a <tt>polysys</tt> object is created from the polynomials <tt>f</tt> and <tt>g</tt>.
+         </p><pre class="codeinput">sys = polysys(f,g,states,inputs);
+</pre><p>The <tt>polynomial</tt> objects <tt>states</tt> and <tt>inputs</tt> specify the ordering of the variables. That is, by setting <tt>states(1) = x1</tt>, we specify that <tt>f(1)</tt> is the time derivative of <tt>x1</tt>.
+         </p>
+         <h2>Optimization parameters.<a name="5"></a></h2>
+         <p>Use the following values for the optimization parameters (defined above):</p><pre class="codeinput">T = 10;
+B = 1;
+C = eye(2);
+</pre><p>The time vector <tt>t</tt> specifies the time window (<tt>T=t(end)</tt>) and the points at which the system trajectory is computed.
+         </p><pre class="codeinput">t = linspace(0,T,1000)';
+</pre><h2>Set options for worstcase solver.<a name="7"></a></h2>
+         <p>Create a <tt>@wcoptions</tt> object that contains the default options.
+         </p><pre class="codeinput">opt = wcoptions();
+</pre><p>Specify the maximum number of iterations and tell the solver to not display any information while solving.</p><pre class="codeinput">opt.MaxIter = 500;
+opt.PlotProgress = <span class="string">'none'</span>;
+</pre><p>Specify the desired cost function.</p><pre class="codeinput">opt.Objective = <span class="string">'Final'</span>;
+opt.FinalCostMatrix = C;
+</pre><p>Specify the bound on the input.</p><pre class="codeinput">opt.InputL2Norm = B;
+</pre><h2>Find worst input.<a name="11"></a></h2><pre class="codeinput">[tOut,x,y,u] = worstcase(sys,t,opt);
+</pre><h2>Display results.<a name="12"></a></h2><pre class="codeinput">cost = x(end,:)*C*x(end,:)';
+fprintf( <span class="string">'||u|| = %0.4f, cost = %0.4f\n'</span>, B, cost );
+
+figure;
+plot(tOut,u)
+xlabel(<span class="string">'Time, t'</span>)
+ylabel(<span class="string">'Input, u(t)'</span>)
+title(<span class="string">'Worst case input.'</span>)
+</pre><pre class="codeoutput">||u|| = 1.0000, cost = 0.5727
+</pre><img vspace="5" hspace="5" src="worstcasedemo2_01.png"> <p class="footer"><br>
+            Published with MATLAB&reg; 7.6<br></p>
+      </div>
+      <!--
+##### SOURCE BEGIN #####
+%% Using the Worstcase Solver - Demo 2
+%
+% <html>
+% Timothy J. Wheeler<br>
+% Dept. of Mechanical Engineering<br>
+% University of California, Berkeley
+% </html>
+
+%% Introduction
+% Consider a dynamic system of the form
+%
+% $$\dot{x} = f(x,u)$$
+%
+% $$y = g(x,u),$$
+%
+% where x(0)=0.  Given positive scalars B and T and a positive definite
+% matrix C, the goal is to maximize
+%
+% $$x(T)' C x(T),$$
+%
+% subject to the constraints
+% 
+% $$\|u\|_{2,T} := \int_0^T \|u(t)\|_2 \, dt \le B.$$
+%
+% Of course, since we are only interested in the value of |x| at time |T|, we
+% only need to consider inputs defined on the interval |[0,T]|.
+
+
+%% Create a model of the system.
+% First, |polynomial| variables are created using the |pvar| command.  Then,
+% these variables are used to define the functions |f| and |g|, which are
+% also |polynomial| variables.
+pvar x1 x2 u
+states = [x1;x2];
+inputs = u;
+f = [ -x1 + x2 - x1*x2^2 ; -x2*x1^2 - x2 + u ];
+g = states;
+%%
+% Then, a |polysys| object is created from the polynomials |f| and |g|.  
+sys = polysys(f,g,states,inputs);
+%%
+% The |polynomial| objects |states| and |inputs| specify the ordering of the
+% variables. That is, by setting |states(1) = x1|, we specify that |f(1)|
+% is the time derivative of |x1|.
+
+
+%% Optimization parameters.
+% Use the following values for the optimization parameters (defined above):
+T = 10;
+B = 1;
+C = eye(2);
+%%
+% The time vector |t| specifies the time window (|T=t(end)|) and the points
+% at which the system trajectory is computed.
+t = linspace(0,T,1000)';
+
+
+%% Set options for worstcase solver.
+% Create a |@wcoptions| object that contains the default options.
+opt = wcoptions();
+%%
+% Specify the maximum number of iterations and tell the solver to
+% not display any information while solving.
+opt.MaxIter = 500;
+opt.PlotProgress = 'none';
+%%
+% Specify the desired cost function.
+opt.Objective = 'Final';
+opt.FinalCostMatrix = C;
+%%
+% Specify the bound on the input.
+opt.InputL2Norm = B;
+
+
+%% Find worst input.
+[tOut,x,y,u] = worstcase(sys,t,opt);
+
+
+%% Display results.
+cost = x(end,:)*C*x(end,:)';
+fprintf( '||u|| = %0.4f, cost = %0.4f\n', B, cost );
+
+figure;
+plot(tOut,u)
+xlabel('Time, t')
+ylabel('Input, u(t)')
+title('Worst case input.')
+
+##### SOURCE END #####
+-->
+   </body>
+</html>

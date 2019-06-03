@@ -1,0 +1,380 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+<html xmlns:mwsh="http://www.mathworks.com/namespace/mcode/v1/syntaxhighlight.dtd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      -->
+      <title>Using the Worstcase Solver - Demo 1</title>
+      <meta name="generator" content="MATLAB 7.6">
+      <meta name="date" content="2009-06-08">
+      <meta name="m-file" content="worstcasedemo1"><style>
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head>
+   <body>
+      <div class="content">
+         <h1>Using the Worstcase Solver - Demo 1</h1>
+         <introduction>
+            <p>The <tt>worstcase</tt> solver is used to find the induced L2-to-L2 gain of a four-state nonlinear system.
+            </p>
+            <p><html> Timothy J. Wheeler<br> Dept. of Mechanical Engineering<br> University of California, Berkeley </html></p>
+         </introduction>
+         <h2>Contents</h2>
+         <div>
+            <ul>
+               <li><a href="#1">Introduction.</a></li>
+               <li><a href="#2">System parameters.</a></li>
+               <li><a href="#3">Create a model of the system.</a></li>
+               <li><a href="#6">Optimization parameters.</a></li>
+               <li><a href="#8">Set options for worstcase solver.</a></li>
+               <li><a href="#12">Find worstcase input.</a></li>
+               <li><a href="#13">Simulate with worstcase input.</a></li>
+               <li><a href="#16">Display results.</a></li>
+               <li><a href="#17">Specifying a starting point.</a></li>
+               <li><a href="#18">Run solver again.</a></li>
+               <li><a href="#23">Display new results.</a></li>
+            </ul>
+         </div>
+         <h2>Introduction.<a name="1"></a></h2>
+         <p>Consider a dynamic system of the form</p>
+         <p><img vspace="5" hspace="5" src="worstcasedemo1_eq71370.png"> </p>
+         <p><img vspace="5" hspace="5" src="worstcasedemo1_eq28730.png"> </p>
+         <p>where <tt>x(0)=0</tt>.  Given positive scalars <tt>B</tt> and <tt>T</tt>, the goal is to maximize
+         </p>
+         <p><img vspace="5" hspace="5" src="worstcasedemo1_eq41959.png"> </p>
+         <p>subject to the constraint</p>
+         <p><img vspace="5" hspace="5" src="worstcasedemo1_eq98426.png"> </p>
+         <p>Note: we only consider inputs and outputs defined on the interval <tt>[0,T]</tt>.
+         </p>
+         <h2>System parameters.<a name="2"></a></h2>
+         <p>This system is parameterized by the following constants:</p><pre class="codeinput">lam = 1;
+PL = 1;
+gammaX = 1;
+gammaR = 1;
+A = 0.8;
+tau = 1;
+K0x = (-1/tau - A)/lam;
+K0r = (1/tau)/lam;
+</pre><h2>Create a model of the system.<a name="3"></a></h2>
+         <p>First, <tt>polynomial</tt> variables are created using the <tt>pvar</tt> command.  Then, these variables are used to define the functions <tt>f</tt> and <tt>g</tt>, which are also <tt>polynomial</tt> variables.
+         </p><pre class="codeinput">pvar <span class="string">x1</span> <span class="string">xm</span> <span class="string">zx</span> <span class="string">zr</span> <span class="string">r</span> <span class="string">w</span>
+states = [x1;xm;zx;zr];
+inputs = [r;w];
+
+f(1,1) = A*x1 + lam*((zx+K0x)*x1 + (zr+K0r)*r) + w;
+f(2,1) = (1/tau)*(-xm+r);
+f(3,1) = -gammaX*x1*(x1-xm)*PL;
+f(4,1) = -gammaR*r*(x1-xm)*PL;
+
+g = ((zx+K0x)*x1 + (zr+K0r)*r) + w;
+</pre><p>Then, a <tt>polysys</tt> object is created from the polynomials <tt>f</tt> and <tt>g</tt>.
+         </p><pre class="codeinput">sys = polysys(f,g,states,inputs);
+</pre><p>The polynomial objects <tt>states</tt> and <tt>inputs</tt> specify the ordering of the variables. That is, by setting <tt>states(1) = x1</tt>, we specify that <tt>f(1)</tt> is the time derivative of <tt>x1</tt>.
+         </p>
+         <h2>Optimization parameters.<a name="6"></a></h2>
+         <p>Use the following values for the optimization parameters (defined above):</p><pre class="codeinput">T = 10;
+B = 3;
+</pre><p>The time vector t specifies the time window (T = t(end)) and the points at which the system trajectory is computed.</p><pre class="codeinput">t = linspace(0,T,100)';
+</pre><h2>Set options for worstcase solver.<a name="8"></a></h2>
+         <p>Create a <tt>wcoptions</tt> object that contains the default options.
+         </p><pre class="codeinput">opt = wcoptions();
+</pre><p>Specify the maximum number of iterations and which ODE solver to use.</p><pre class="codeinput">opt.MaxIter = 50;
+opt.ODESolver = <span class="string">'ode45'</span>;
+</pre><p>Tell the solver to display a text summary of each iteration.</p><pre class="codeinput">opt.PlotProgress = <span class="string">'none'</span>;
+</pre><p>Specify the optimization objective, and the bound on the input.</p><pre class="codeinput">opt.Objective = <span class="string">'L2'</span>;
+opt.InputL2Norm = B;
+</pre><h2>Find worstcase input.<a name="12"></a></h2><pre class="codeinput">[tOut,x,y,u,eNorm] = worstcase(sys,t,opt);
+</pre><h2>Simulate with worstcase input.<a name="13"></a></h2>
+         <p>We can only compute the worstcase input over a finite interval of time [0,T].  However, any response of the system that occurs
+            after the input is "shut off" (i.e., u(t) = 0 for t &gt; T) should contribute to our objective.  Hence, we compute a more accurate
+            value of the objective by continuing the simulation from the end of the previous trajectory with no input:
+         </p><pre class="codeinput">[te,xe,ye] = sim(sys,tOut,x(end,:)');
+td = [tOut;tOut(2:end)+max(tOut)];
+yd = [y;ye(2:end)];
+</pre><p>The objective value over [0,T] is</p><pre class="codeinput">eNorm
+</pre><pre class="codeoutput">eNorm =
+    4.7436
+</pre><p>The objective value over [0,2T] is</p><pre class="codeinput">eNormd = get2norm(yd,td)
+</pre><pre class="codeoutput">eNormd =
+    4.9622
+</pre><h2>Display results.<a name="16"></a></h2><pre class="codeinput">fprintf( <span class="string">'The L2-to-L2 gain is %f\n'</span>, eNormd/B );
+
+figure;
+plot(tOut,u)
+xlabel(<span class="string">'Time, t'</span>)
+ylabel(<span class="string">'Input, u(t)'</span>)
+title(<span class="string">'Worst case input.'</span>)
+
+figure;
+plot(td,yd)
+xlabel(<span class="string">'Time, t'</span>)
+ylabel(<span class="string">'Output, y(t)'</span>)
+title(<span class="string">'Worst case output over extended time interval.'</span>)
+</pre><pre class="codeoutput">The L2-to-L2 gain is 1.654050
+</pre><img vspace="5" hspace="5" src="worstcasedemo1_01.png"> <img vspace="5" hspace="5" src="worstcasedemo1_02.png"> <h2>Specifying a starting point.<a name="17"></a></h2>
+         <p>By default, the worstcase solver starts with a constant input and then searches for a better input.  Since this problem is
+            nonconvex, this search may get "stuck" at a local optimum.  We can help the solver by specifying a sensible starting point
+            that is known to exhibit a large output.
+         </p><pre class="codeinput">load <span class="string">demo1_badInput</span>
+u0 = B * ubad/get2norm(ubad,tbad);
+opt.InitialInput = u0;
+</pre><h2>Run solver again.<a name="18"></a></h2><pre class="codeinput">[tOut,x,y,u,eNorm] = worstcase(sys,t,opt);
+</pre><p>Extend this simulation.</p><pre class="codeinput">[te,xe,ye] = sim(sys,tOut,x(end,:)');
+td = [tOut;tOut(2:end)+max(tOut)];
+yd = [y;ye(2:end)];
+</pre><p>The objective value over [0,T] is</p><pre class="codeinput">eNorm
+</pre><pre class="codeoutput">eNorm =
+    5.0020
+</pre><p>The objective value over [0,2T] is</p><pre class="codeinput">eNormd = get2norm(yd,td)
+</pre><pre class="codeoutput">eNormd =
+    5.0029
+</pre><p>Note that we achieve a larger value of the objective when we start the solver at u0.</p>
+         <h2>Display new results.<a name="23"></a></h2><pre class="codeinput">fprintf( <span class="string">'The L2-to-L2 gain is %f\n'</span>, eNormd/B );
+
+figure;
+plot(tOut,u)
+xlabel(<span class="string">'Time, t'</span>)
+ylabel(<span class="string">'Input, u(t)'</span>)
+title(<span class="string">'Worst case input.'</span>)
+
+figure;
+plot(td,yd)
+xlabel(<span class="string">'Time, t'</span>)
+ylabel(<span class="string">'Output, y(t)'</span>)
+title(<span class="string">'Worst case output over extended time interval.'</span>)
+</pre><pre class="codeoutput">The L2-to-L2 gain is 1.667635
+</pre><img vspace="5" hspace="5" src="worstcasedemo1_03.png"> <img vspace="5" hspace="5" src="worstcasedemo1_04.png"> <p class="footer"><br>
+            Published with MATLAB&reg; 7.6<br></p>
+      </div>
+      <!--
+##### SOURCE BEGIN #####
+%% Using the Worstcase Solver - Demo 1
+% The |worstcase| solver is used to find the induced L2-to-L2 gain of a
+% four-state nonlinear system.
+%
+% <html>
+% Timothy J. Wheeler<br>
+% Dept. of Mechanical Engineering<br>
+% University of California, Berkeley
+% </html>
+
+%% Introduction.
+% Consider a dynamic system of the form
+%
+% $$\dot{x} = f(x,u)$$
+%
+% $$y = g(x,u),$$
+%
+% where |x(0)=0|.  Given positive scalars |B| and |T|, the goal is to maximize
+% 
+% $$\|y\|_{2,T} := \int_0^T \|y(t)\|_2 \, dt$$
+%
+% subject to the constraint
+% 
+% $$\|u\|_{2,T} := \int_0^T \|u(t)\|_2 \, dt \le B.$$
+%
+% Note: we only consider inputs and outputs defined on the interval |[0,T]|.
+
+
+%% System parameters.
+% This system is parameterized by the following constants:
+lam = 1;
+PL = 1;
+gammaX = 1;
+gammaR = 1;
+A = 0.8;
+tau = 1;
+K0x = (-1/tau - A)/lam;
+K0r = (1/tau)/lam;
+
+
+%% Create a model of the system.
+% First, |polynomial| variables are created using the |pvar| command.  Then,
+% these variables are used to define the functions |f| and |g|, which are
+% also |polynomial| variables.
+pvar x1 xm zx zr r w
+states = [x1;xm;zx;zr];
+inputs = [r;w];
+
+f(1,1) = A*x1 + lam*((zx+K0x)*x1 + (zr+K0r)*r) + w;
+f(2,1) = (1/tau)*(-xm+r);
+f(3,1) = -gammaX*x1*(x1-xm)*PL;
+f(4,1) = -gammaR*r*(x1-xm)*PL;
+
+g = ((zx+K0x)*x1 + (zr+K0r)*r) + w;
+%%
+% Then, a |polysys| object is created from the polynomials |f| and |g|.  
+sys = polysys(f,g,states,inputs);
+%%
+% The polynomial objects |states| and |inputs| specify the ordering of the
+% variables. That is, by setting |states(1) = x1|, we specify that |f(1)|
+% is the time derivative of |x1|.
+
+
+%% Optimization parameters.
+% Use the following values for the optimization parameters (defined above):
+T = 10;
+B = 3;
+%%
+% The time vector t specifies the time window (T = t(end)) and the points
+% at which the system trajectory is computed.
+t = linspace(0,T,100)';
+
+
+%% Set options for worstcase solver.
+% Create a |wcoptions| object that contains the default options.
+opt = wcoptions();
+%%
+% Specify the maximum number of iterations and which ODE solver to use.
+opt.MaxIter = 50;
+opt.ODESolver = 'ode45';
+%%
+% Tell the solver to display a text summary of each iteration.
+opt.PlotProgress = 'none';
+%%
+% Specify the optimization objective, and the bound on the input.
+opt.Objective = 'L2';
+opt.InputL2Norm = B;
+
+%% Find worstcase input.
+[tOut,x,y,u,eNorm] = worstcase(sys,t,opt);
+
+%% Simulate with worstcase input.
+% We can only compute the worstcase input over a finite interval of time
+% [0,T].  However, any response of the system that occurs after the input
+% is "shut off" (i.e., u(t) = 0 for t > T) should contribute to our
+% objective.  Hence, we compute a more accurate value of the objective by
+% continuing the simulation from the end of the previous trajectory with no
+% input:
+[te,xe,ye] = sim(sys,tOut,x(end,:)');
+td = [tOut;tOut(2:end)+max(tOut)];
+yd = [y;ye(2:end)];
+%%
+% The objective value over [0,T] is
+eNorm
+%%
+% The objective value over [0,2T] is
+eNormd = get2norm(yd,td)
+
+%% Display results.
+
+fprintf( 'The L2-to-L2 gain is %f\n', eNormd/B );
+
+figure;
+plot(tOut,u)
+xlabel('Time, t')
+ylabel('Input, u(t)')
+title('Worst case input.')
+
+figure;
+plot(td,yd)
+xlabel('Time, t')
+ylabel('Output, y(t)')
+title('Worst case output over extended time interval.')
+
+
+%% Specifying a starting point.
+% By default, the worstcase solver starts with a constant input and then
+% searches for a better input.  Since this problem is nonconvex, this
+% search may get "stuck" at a local optimum.  We can help the solver by
+% specifying a sensible starting point that is known to exhibit a large
+% output.
+load demo1_badInput
+u0 = B * ubad/get2norm(ubad,tbad);
+opt.InitialInput = u0;
+
+%% Run solver again.
+[tOut,x,y,u,eNorm] = worstcase(sys,t,opt);
+%%
+% Extend this simulation.
+[te,xe,ye] = sim(sys,tOut,x(end,:)');
+td = [tOut;tOut(2:end)+max(tOut)];
+yd = [y;ye(2:end)];
+%%
+% The objective value over [0,T] is
+eNorm
+%%
+% The objective value over [0,2T] is
+eNormd = get2norm(yd,td)
+%%
+% Note that we achieve a larger value of the objective when we start the
+% solver at u0.
+
+
+%% Display new results.
+
+fprintf( 'The L2-to-L2 gain is %f\n', eNormd/B );
+
+figure;
+plot(tOut,u)
+xlabel('Time, t')
+ylabel('Input, u(t)')
+title('Worst case input.')
+
+figure;
+plot(td,yd)
+xlabel('Time, t')
+ylabel('Output, y(t)')
+title('Worst case output over extended time interval.')
+##### SOURCE END #####
+-->
+   </body>
+</html>
