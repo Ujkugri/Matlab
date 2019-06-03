@@ -22,7 +22,7 @@ xlabel('Opinion x_i(0)')
 ylabel('frequency')
 
 
-for nPhi=1:3                %Einschrittverfahren h=0.1
+for nPhi=1:3                %Einschrittverfahren h=0.01
    for k=1:H
      x(:,k+1) = x(:,k) + (h/10)*rhs(x(:,k),nPhi);
    end
@@ -42,7 +42,7 @@ for nPhi=1:3                %Einschrittverfahren h=0.1
    ylim([0 10])
 end
 
-for nPhi=1:3                %Einschrittverfahren h=0.01
+for nPhi=1:3                %Einschrittverfahren h=0.1
    for k=1:H
      x(:,k+1) = x(:,k) + (h)*rhs(x(:,k),nPhi);
    end
