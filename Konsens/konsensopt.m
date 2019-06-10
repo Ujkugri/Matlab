@@ -82,8 +82,8 @@ function dx = rhs(x,nPhi)       %Die rechte Seite meines Systems
 
         for ii=1:N
             for jj=1:N
-            if(ii~=jj)
-                d = x(jj,1)-x(ii,1);
+                if(ii~=jj)
+                    d = x(jj,1)-x(ii,1);
                     tmp=0;
                     for gg=1:N
                         tmp = tmp+ phi(abs(x(ii,1)-x(gg,1)),nPhi);
@@ -91,7 +91,7 @@ function dx = rhs(x,nPhi)       %Die rechte Seite meines Systems
          a = (1/tmp)*phi(abs(d),nPhi);
          dx(ii,1) = dx(ii,1) + alpha*a*d;
 
-       end
-     end
-   end
+                end
+            end
+        end
 end
