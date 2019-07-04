@@ -4,7 +4,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                    
 %% Audiofilebearbeitung
-[x,fs] = audioread('C:\Users\Gentian\Dropbox\Uni\Physik\Schallanalyse mit FFT\Noten\g.mp3');                                                   
+[x,fs] = audioread('C:\Users\Bleistiftbruder\Dropbox\Uni\Programm\Matlab\Schallanalyse mit FFT\Noten\g.mp3');                                                   
 music=x(0.1e4:end);                                                        % x:komplette Audiodatei; music:der zu bearbeitende Teil
 NFFT = 2^nextpow2(length(music));                                          % Signallänge fft
 t = (0:1/fs:(length(music)-1)/fs);                                         % Zeit fft
@@ -42,7 +42,7 @@ xlim([0 locs(1)+1000]);                                                     %Var
 
 
 %Note aus Notenliste rauslesen
-Notenliste = importdata('C:\Users\Gentian\Dropbox\Uni\Physik\Schallanalyse mit FFT\Noten\Notenliste.txt');
+Notenliste = importdata('C:\Users\Bleistiftbruder\Dropbox\Uni\Programm\Matlab\Schallanalyse mit FFT\Noten\Notenliste.txt');
 [~, Zeile]=min(abs( Notenliste.data(:)-locs(1)));
 
 
