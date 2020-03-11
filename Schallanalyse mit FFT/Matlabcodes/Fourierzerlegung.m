@@ -35,6 +35,9 @@ ylabel('X(t)')
 
 
 %Auswertung ohne weiﬂem Rauschen
+Fs =4410;                                                                   % Sampling frequency                    
+T = 1/Fs;                                                                   % Sampling period       
+L = 1000000;  
 Y1 = fft(S);
 P2 = abs(Y1/L);
 P1 = P2(1:L/2+1);

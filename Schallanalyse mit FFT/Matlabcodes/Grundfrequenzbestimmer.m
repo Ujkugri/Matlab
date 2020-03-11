@@ -4,7 +4,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                    
 %% Audiofilebearbeitung
-[x,fs] = audioread('C:\Users\Bleistiftbruder\Dropbox\Uni\Programm\Matlab\Schallanalyse mit FFT\Noten\g.mp3');                                                   
+[x,fs] = audioread('C:\Users\Gentian\Dropbox\Uni\Programm\Matlab\Schallanalyse mit FFT\Noten\A.mp3');                                                   
 music=x(0.1e4:end);                                                        % x:komplette Audiodatei; music:der zu bearbeitende Teil
 NFFT = 2^nextpow2(length(music));                                          % Signallänge fft
 t = (0:1/fs:(length(music)-1)/fs);                                         % Zeit fft
@@ -32,17 +32,17 @@ P1=P1alt/(max(pks));
 
 
 %Plot
-subplot(2,1,1)
+ax1 = subplot(2,1,1)
 set(gcf,'units','normalized','outerposition',[0 0 1 1]);                   %Fullscreen Figure
-plot(f,P1) 
-title('Single-Sided Amplitude Spectrum of S(t)')
-xlabel('f (Hz)')
-ylabel('Amplitude')
+plot(f,P1,'Linewidth',2) 
+title('\fontsize{30} Single-Sided Amplitude Spectrum of S(t)')
+xlabel('\fontsize{30} f (Hz)')
+ylabel('\fontsize{30} Amplitude')
 xlim([0 locs(1)+1000]);                                                     %Variable locs(1)+500
-
+ax1.FontSize = 16;
 
 %Note aus Notenliste rauslesen
-Notenliste = importdata('C:\Users\Bleistiftbruder\Dropbox\Uni\Programm\Matlab\Schallanalyse mit FFT\Noten\Notenliste.txt');
+Notenliste = importdata('C:\Users\Gentian\Dropbox\Uni\Programm\Matlab\Schallanalyse mit FFT\Noten\Notenliste.txt');
 [~, Zeile]=min(abs( Notenliste.data(:)-locs(1)));
 
 
@@ -51,6 +51,6 @@ subplot(2,1,2)
 text(0.5, 0.5, {['Die Grundfrequenz beträgt ', sprintf('%0.2f',locs(1)),' Hz.'];'Es handelt sich also dabei um die Musiknote:'; ' ' ;char(Notenliste.textdata(Zeile+1))}, ... 
   'VerticalAlignment', 'middle', ... 
   'HorizontalAlignment', 'center',...
-  'FontSize',28); 
+  'FontSize',45); 
 axis off
 
